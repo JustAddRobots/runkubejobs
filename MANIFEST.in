@@ -1,0 +1,4 @@
+include README.rst
+include VERSION
+include runkubejobs/kube-job-tmpl-loghw.yaml
+include runkubejobs/kube-job-tmpl-runxhpl.yaml

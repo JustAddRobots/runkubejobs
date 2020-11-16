@@ -1,2 +1,2 @@
 # runkubejobs
-Custom Kubernetes Job controller for XHPL
+Custom Kubernetes Job Controller
