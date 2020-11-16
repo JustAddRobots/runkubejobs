@@ -14,7 +14,7 @@ with open(os.path.dirname(__file__) + "/VERSION") as f:
 setup(
     name = "runkubejobs",
     version = pkgversion,
-    description = "Custom Kubernetes Job Controller for XHPL",
+    description = "Custom Kubernetes Job Controller",
     url = "https://github.com/JustAddRobots/runkubejobs"
     author = "Roderick Constance", 
     author_email = "justaddrobots@icloud",

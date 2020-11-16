@@ -222,7 +222,7 @@ def get_thread(q, stream):
       \----------------------/      |   |      ===============
                                     | Q | <=== | Main thread |
       /--------------------\        |   |      ===============
-      | loghw event stream | -----> |   |
+      | other event stream | -----> |   |
       \--------------------/        -----
 
     Args:
@@ -328,7 +328,7 @@ def get_like_objs(obj, api):
     """
     Get similar Kubernetes objects (jobs/pods) according to metadata labels.
 
-    This is useful for grouping together objects with similar task (e.g. loghw)
+    This is useful for grouping together objects with similar task (e.g. runxhpl)
     and log-id with to of the target object.
 
     Args:
@@ -357,7 +357,7 @@ def gen_like_job_status(job, batch):
     Generate the statuses of similar Kubernetes jobs.
 
     This is useful for getting the status of jobs with similar task
-    (e.g. loghw) and log-id as that of the target job. This facilitates
+    (e.g. runxhpl) and log-id as that of the target job. This facilitates
     checking a group of runs for failure/success.
 
     Args:

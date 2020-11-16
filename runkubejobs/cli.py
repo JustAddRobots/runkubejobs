@@ -105,7 +105,7 @@ def get_command(args):
         "-n", "--nodes",
         action = "store",
         type = csv_str,
-        help = "set nodes for task",
+        help = "set nodes for task (comma separated)",
         required = False,
     )
     parser.add_argument(
@@ -248,6 +248,7 @@ def run(d):
     for node in nodes:
         workers[node] = kubejobs.kubeJob(tmpl, task, node, log_id, image, core, batch, q_watch, w)
 
+    # Register cleanup, handle exception queue from child threads
     atexit.register(clean_up, workers, batch, core, my_cli)
     try:
         m.join()
