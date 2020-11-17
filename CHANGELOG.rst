@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.0 (2020-11-17)
+------------------
+- Stage: Added pod toleration to run on master node. (4d44a6e) [JustAddRobots]
+- ISSUE-007: Removed master node from scheduler ignore. (67d4a33) [JustAddRobots]
+
 0.2.0 (2020-11-17)
 ------------------
 - ISSUE-004: Added pre-commit flake8 fixes. (b47b8e1) [JustAddRobots]
