@@ -1,0 +1,54 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+    name: $TASK-$WORKER
+    labels:
+        job-group: $TASK-$WORKER
+        task: $TASK
+        log-id: $LOGID
+spec:
+    backoffLimit: 0
+    parallelism: 1
+    completions: 1
+    template:
+        metadata:
+            labels:
+                job-group: $TASK-$WORKER
+                task: $TASK
+                log-id: $LOGID
+        spec:
+            affinity:
+                nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                        nodeSelectorTerms:
+                        -   matchExpressions:
+                            -   key: kubernetes.io/hostname
+                                operator: In
+                                values:
+                                -   $WORKER
+            containers:
+            -   name: runxhpl
+                image: $IMAGE
+                env:
+                -   name: DEBUG
+                    value: "--debug"
+                -   name: LOGID
+                    value: "--logid $LOGID"
+                -   name: MEM
+                    value: "--mem 10"
+                -   name: RUNS
+                    value: "--runs 2"
+                imagePullPolicy: Always
+                securityContext:
+                    privileged: true
+                volumeMounts:
+                -   mountPath: /tmp/logs
+                    name: tmp-logs
+            volumes:
+            -   name: tmp-logs
+                hostPath:
+                    path: /tmp/logs
+                    type: DirectoryOrCreate
+            hostNetwork: true
+            restartPolicy: Never
