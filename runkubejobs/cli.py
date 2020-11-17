@@ -22,6 +22,7 @@ import kubernetes.watch as watch
 from engcommon import clihelper
 from runkubejobs import kubejobs
 
+
 def csv_str(vstr, sep = ","):
     """
     Parse comma-separated value string for "nodes" option.
@@ -51,7 +52,7 @@ def csv_str(vstr, sep = ","):
     for v in vstr.split(sep):
         try:
             v = str(v)
-        except ValueError as e:
+        except ValueError:
             raise ArgumentError("Invalid value: {0}, must be string".format(v))
         else:
             v = v.strip(" ,")
@@ -64,13 +65,14 @@ def csv_str(vstr, sep = ","):
                 values.append(v)
     return values
 
+
 def get_command(args):
     """
     Parse command argument list into dict.
 
     Parameters:
         args (list): Argument list (typically sys.argv[1:]).
- 
+
     Returns:
         args (dict): Argument dict.
     """
@@ -121,7 +123,6 @@ def get_command(args):
         action = "store",
         help = "set task to run",
         choices = [
-            "loghw",
             "runxhpl",
         ],
         required = True,
@@ -140,6 +141,7 @@ def get_command(args):
     )
     args = vars(parser.parse_args(args))
     return args
+
 
 def clean_up(workers, batch, core, my_cli):
     """
@@ -174,7 +176,7 @@ def clean_up(workers, batch, core, my_cli):
                         " Failed pod log: "
                         + p.metadata.name
                         + " "
-                    ).center(80,"*")
+                    ).center(80, "*")
                 ))
                 s = kubejobs.get_pod_log(p.metadata.name, core)
                 logger_noformat.debug(s)
@@ -182,6 +184,7 @@ def clean_up(workers, batch, core, my_cli):
                 kubejobs.delete_obj(j, batch)
     my_cli.print_logdir()
     return None
+
 
 def run(d):
     """
@@ -206,7 +209,6 @@ def run(d):
     my_cli = clihelper.CLI(project_name, d)
     log_id = my_cli.log_id
     logger = my_cli.logger
-    logger_noformat = my_cli.logger_noformat
     my_cli.print_versions()
 
     # Setup Kubernetes config and API
@@ -222,15 +224,16 @@ def run(d):
     nodes = d["nodes"]
     image = d["image"]
     tmpl = d["tmpl"]
-    if not tmpl: 
+    if not tmpl:
         tmpl = pkg_resources.resource_stream(
-            __name__, 
+            __name__,
             "kube-job-tmpl-{0}.yaml".format(task)
         ).name
 
     logger.info("Creating Watch() thread")
     stream = kubejobs.get_stream(w, core)
-    thread = kubejobs.get_thread(q_watch, stream)
+    t_watch = kubejobs.get_thread(q_watch, stream)
+    t_watch.start()
 
     # Start main thread
     m = threading.Thread(
@@ -243,7 +246,8 @@ def run(d):
 
     logger.info("Creating workers")
     workers = {}
-    if "all" in nodes: nodes = kubejobs.get_ready_nodes(core)
+    if "all" in nodes:
+        nodes = kubejobs.get_ready_nodes(core)
 
     for node in nodes:
         workers[node] = kubejobs.kubeJob(tmpl, task, node, log_id, image, core, batch, q_watch, w)
@@ -264,16 +268,18 @@ def run(d):
             except exc_type:
                 logger.error(exc)
                 raise
-    
+
+
 def main():
     args = sys.argv[1:]
     d = get_command(args)
     run(d)
 
+
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e:
-        logger.exception("Exceptions Found")
-        logger.critical("Exiting.")
-        sys.exit(1)    
+    except Exception:
+        logging.exception("Exceptions Found")
+        logging.critical("Exiting.")
+        sys.exit(1)
