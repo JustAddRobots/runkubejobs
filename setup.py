@@ -15,16 +15,16 @@ setup(
     name = "runkubejobs",
     version = pkgversion,
     description = "Custom Kubernetes Job Controller",
-    url = "https://github.com/JustAddRobots/runkubejobs"
-    author = "Roderick Constance", 
+    url = "https://github.com/JustAddRobots/runkubejobs",
+    author = "Roderick Constance",
     author_email = "justaddrobots@icloud",
     license = "Private",
     packages = [
         "runkubejobs",
     ],
     package_data = {
-        "runkubejobs": [ 
-            "runkubejobs/kube-job-tmpl-runxhpl.yaml", 
+        "runkubejobs": [
+            "runkubejobs/kube-job-tmpl-runxhpl.yaml",
         ],
     },
     include_package_data = True,

@@ -28,8 +28,8 @@ class kubeJob:
     A class for spawning Kubernetes jobs on worker nodes.
 
     This class is really only used to facilitate spawning the jobs. It requires
-    organised instantiation using CLI options parsed into a Kubernetes YAML 
-    template. After the job is spawned, the generic non-class functions in this 
+    organised instantiation using CLI options parsed into a Kubernetes YAML
+    template. After the job is spawned, the generic non-class functions in this
     module administer the job through the Kubernetes API.
 
     Attributes:
@@ -79,12 +79,12 @@ class kubeJob:
                 self.worker_yaml["metadata"]["name"],
                 "default",
             )
-        except ApiException as e: 
-            if e.reason == "Not Found":
+        except ApiException as err:
+            if err.reason == "Not Found":
                 exists = False
                 job = None
             else:
-                raise e
+                raise err
         else:
             exists = True
         return (exists, job)
@@ -124,8 +124,8 @@ class kubeJob:
         if isinstance(self.worker_yaml, dict):
             try:
                 kubeutils.create_from_dict(kube_client, self.worker_yaml)
-            except FailToCreateError as e:  # list(ApiException)
-                raise e
+            except kubeutils.FailToCreateError as err:  # list(ApiException)
+                raise err
             else:
                 job = get_job(
                     self.worker_yaml["metadata"]["name"],
@@ -158,11 +158,11 @@ def delete_obj(obj, api):
         "propagation_policy": "Foreground",
     }
     try:
-        r = getattr(api, fn)(*params, **kw_params)
-    except ApiException as e:
-        raise e
+        getattr(api, fn)(*params, **kw_params)
+    except ApiException as err:
+        raise err
     return None
-    
+
 
 def get_stream(w, core):
     """
@@ -199,9 +199,9 @@ def queue_event(q, stream):
     """
     current_time = datetime.datetime.now(tzutc())
     for event in stream:
-        e = event["object"]
-        if e.last_timestamp:
-            if e.last_timestamp > current_time:
+        err = event["object"]
+        if err.last_timestamp:
+            if err.last_timestamp > current_time:
                 q.put(event)
     return None
 
@@ -217,13 +217,13 @@ def get_thread(q, stream):
 
     The following is an diagram with multiple event streams:
 
-      /----------------------\      -----
+      +----------------------+      -----
       | runxhpl event stream | ---> |   |
-      \----------------------/      |   |      ===============
+      +----------------------+      |   |      ===============
                                     | Q | <=== | Main thread |
-      /--------------------\        |   |      ===============
+      +--------------------+        |   |      ===============
       | other event stream | -----> |   |
-      \--------------------/        -----
+      +--------------------+        -----
 
     Args:
         q (Queue): Queue for processing events by main thread.
@@ -238,8 +238,8 @@ def get_thread(q, stream):
         name = "thread.watch",
         daemon = True,
     )
-    t.start()
     return t
+
 
 def get_job(name, batch):
     """
@@ -250,19 +250,19 @@ def get_job(name, batch):
         batch (BatchV1Api): Kubernetes API.
 
     Returns:
-        j (V1Job): Queried job
+        job (V1Job): Queried job
 
     Raises:
         ApiException: An error occured reading the job.
     """
     try:
-        j = batch.read_namespaced_job(
+        job = batch.read_namespaced_job(
             name,
-            "default", 
+            "default",
         )
-    except ApiException as e:
-        raise e
-    return j
+    except ApiException as err:
+        raise err
+    return job
 
 
 def get_pod(obj, core):
@@ -274,7 +274,7 @@ def get_pod(obj, core):
         core (CoreV1Api): Kubernetes API.
 
     Returns:
-        p (V1Pod): Queried pod.
+        pod (V1Pod): Queried pod.
 
     Raises:
         ApiException: An error occured listing the job.
@@ -283,45 +283,45 @@ def get_pod(obj, core):
     if isinstance(obj, client.models.v1_job.V1Job):
         job = obj
         try:
-            l = core.list_namespaced_pod(
+            list_ = core.list_namespaced_pod(
                 "default",
                 label_selector = "job-group={0}".format(job.metadata.name),
             )
-        except ApiException as e:
-            raise e
+        except ApiException as err:
+            raise err
         else:
-            p = l.items[0]
+            pod = list_.items[0]
     elif isinstance(obj, str):
         name = obj
         try:
-            p = core.read_namespaced_pod(
+            pod = core.read_namespaced_pod(
                 name,
                 "default",
             )
-        except ApiException as e:
-            raise e
-    return p
+        except ApiException as err:
+            raise err
+    return pod
 
 
-def get_pod_log(p, core):
+def get_pod_log(pod_name, core):
     """
     Get the log of a Kubernetes Pod.
 
     Args:
-        p (str): Name of the pod.
+        pod_name (str): Name of the pod.
         core (CoreV1Api): Kubernetes API.
 
     Returns:
-        s (str): pod log
+        str_ (str): pod log
 
     Raises:
         ApiException: An error occured reading the pod log
     """
     try:
-        s = core.read_namespaced_pod_log(p, "default")
-    except ApiException as e:
-        raise e
-    return s
+        str_ = core.read_namespaced_pod_log(pod_name, "default")
+    except ApiException as err:
+        raise err
+    return str_
 
 
 def get_like_objs(obj, api):
@@ -329,14 +329,14 @@ def get_like_objs(obj, api):
     Get similar Kubernetes objects (jobs/pods) according to metadata labels.
 
     This is useful for grouping together objects with similar task (e.g. runxhpl)
-    and log-id with to of the target object.
+    and log-id with that of the target object.
 
     Args:
         obj (V1Job or V1Pod): Queried object.
         api (BatchV1Api or CoreV1Api): Kubernetes API.
 
     Returns:
-        l.items (list V1Job or V1Pod): list of objects like target object.
+        list_.items (list V1Job or V1Pod): list of objects like target object.
     """
     fn = "list_namespaced_{0}".format(obj.kind.lower())
     params = (
@@ -348,8 +348,8 @@ def get_like_objs(obj, api):
             obj.metadata.labels["log-id"]
         ),
     }
-    l = getattr(api, fn)(*params, **kw_params)
-    return l.items
+    list_ = getattr(api, fn)(*params, **kw_params)
+    return list_.items
 
 
 def gen_like_job_status(job, batch):
@@ -368,50 +368,49 @@ def gen_like_job_status(job, batch):
         status (generator): Job statusues generator object.
     """
     status = ""
-    for j in get_like_objs(job, batch):
-        if j.status:
-            if j.status.failed:
+    for jb in get_like_objs(job, batch):
+        if jb.status:
+            if jb.status.failed:
                 status = "Failed"
-            elif j.status.succeeded:
+            elif jb.status.succeeded:
                 status = "Succeeded"
             else:
                 status = ""
             yield status
 
-       
-def log_event(e):
+
+def log_event(ev):
     """
     Log the Kubernetes event using the logger.
 
-    Uses the debug logger and includes a warning if the event is of type 
+    Uses the debug logger and includes a warning if the event is of type
     "Warning".
 
     Args:
-        e (V1Event): Kubernetes event 
+        ev (V1Event): Kubernetes event
 
     Returns:
         None
     """
     log_vars = {}
     format_vars = ""
-    o = e.involved_object
-    o_meta = e.metadata
-    if e.type:
-        e_type = "WWW" if e.type == "Warning" else "..."
-        log_vars.update({"type": e_type})
+    obj = ev.involved_object
+    if ev.type:
+        ev_type = "WWW" if ev.type == "Warning" else "..."
+        log_vars.update({"type": ev_type})
         format_vars += "{type:<4}"
-    if o.name:
-        log_vars.update({"o_name": o.name})
-        format_vars += "{o_name:<25}"
-    if e.reason:
-        log_vars.update({"reason": e.reason})
+    if obj.name:
+        log_vars.update({"obj_name": obj.name})
+        format_vars += "{obj_name:<25}"
+    if ev.reason:
+        log_vars.update({"reason": ev.reason})
         format_vars += "{reason:<25}"
     if format_vars:
         logger.debug(format_vars.format(**log_vars))
     return None
 
 
-def is_failed(e_type, job, pod, batch, q_exc):
+def is_failed(ev_type, job, pod, batch, q_exc):
     """
     Check if Kubernetes Job/Pod in Kubernetes Event has failed.
 
@@ -419,7 +418,7 @@ def is_failed(e_type, job, pod, batch, q_exc):
     via the exception queue.
 
     Args:
-        e_type (str): type of event, from V1Event.type.
+        ev_type (str): type of event, from V1Event.type.
         job (V1Job): Query job.
         pod (V1Pod): Query pod.
         batch (BatchV1Api): Kubernetes API.
@@ -438,13 +437,13 @@ def is_failed(e_type, job, pod, batch, q_exc):
         time_current = datetime.datetime.now(tzutc())
         time_elapsed = (time_current - pod.status.start_time).total_seconds()
         if (
-            e_type == "Warning"
+            ev_type == "Warning"
             and pod.status.phase == "Pending"
             and time_elapsed > 60
         ):
             try:
                 raise RuntimeError("Pending Timeout Exceeded", pod.metadata.name)
-            except RuntimeError as e:
+            except RuntimeError:
                 failed = True
                 q_exc.put(sys.exc_info())
 
@@ -452,14 +451,14 @@ def is_failed(e_type, job, pod, batch, q_exc):
         if pod.status.phase == "Failed":
             try:
                 raise RuntimeError("Pod Failed", pod.metadata.name)
-            except RuntimeError as e:
+            except RuntimeError:
                 failed = True
                 q_exc.put(sys.exc_info())
     elif job.status:
         if job.status.failed:
             try:
                 raise RuntimeError("Job Failed", job.metadata.name)
-            except RuntimeError as e:
+            except RuntimeError:
                 failed = True
                 q_exc.put(sys.exc_info())
     return failed
@@ -511,10 +510,9 @@ def parse_queue(q_watch, q_exc, batch, core):
     while True:
         if not q_watch.empty():
             w_event = q_watch.get()
-            event_type = w_event["type"]
-            e = w_event["object"]
-            log_event(e)
-            obj = e.involved_object
+            ev = w_event["object"]
+            log_event(ev)
+            obj = ev.involved_object
             if obj.kind.lower() == "job":
                 job = get_job(obj.name, batch)
                 pod = get_pod(job, core)
@@ -524,7 +522,7 @@ def parse_queue(q_watch, q_exc, batch, core):
 
             if (
                 is_completed(job, batch)
-                or is_failed(e.type, job, pod, batch, q_exc)
+                or is_failed(ev.type, job, pod, batch, q_exc)
             ):
                 break
     return None
@@ -543,12 +541,12 @@ def get_ready_nodes(core):
         ready_nodes (list): Node list.
     """
     ready_nodes = []
-    l = core.list_node()
-    for i in l.items:
+    list_ = core.list_node()
+    for i in list_.items:
         if not (
             "node-role.kubernetes.io/master" in i.metadata.labels.keys()
             or i.spec.unschedulable
-            ):
+        ):
             # Sort condition list by timestamp
             conds = sorted(
                 i.status.conditions,
@@ -575,7 +573,7 @@ def get_dict_from_yaml(task, worker, filename, log_id, image):
     Returns:
         d (dict): Dictionary of YAML with substituted vars
     """
-    d = {}
+    dict_ = {}
     image_dict = {
         "runxhpl": "hosaka.local:5000/runxhpl:default-x86_64"
     }
@@ -583,7 +581,7 @@ def get_dict_from_yaml(task, worker, filename, log_id, image):
     with open(filename) as f:
         blob = f.read()
 
-    d = yaml.safe_load(
+    dict_ = yaml.safe_load(
         blob.replace(
             "$WORKER", worker
         ).replace(
@@ -594,5 +592,4 @@ def get_dict_from_yaml(task, worker, filename, log_id, image):
             "$IMAGE", img
         )
     )
-    return d
-
+    return dict_
