@@ -18,6 +18,9 @@ spec:
                 task: $TASK
                 log-id: $LOGID
         spec:
+            tolerations:
+            -   key: node-role.kubernetes.io/master
+                effect: NoSchedule
             affinity:
                 nodeAffinity:
                     requiredDuringSchedulingIgnoredDuringExecution:
