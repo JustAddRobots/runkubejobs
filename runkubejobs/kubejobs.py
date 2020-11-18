@@ -544,9 +544,8 @@ def get_ready_nodes(core):
     list_ = core.list_node()
     for i in list_.items:
         if not (
-            # "node-role.kubernetes.io/master" in i.metadata.labels.keys()
-            # or i.spec.unschedulable
-            i.spec.unschedulable
+            "node-role.kubernetes.io/master" in i.metadata.labels.keys()
+            or i.spec.unschedulable
         ):
             # Sort condition list by timestamp
             conds = sorted(
