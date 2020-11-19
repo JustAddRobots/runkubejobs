@@ -212,8 +212,7 @@ def run(d):
     my_cli.print_versions()
 
     # Setup Kubernetes config and API
-    # config.load_kube_config()
-    config.load_incluster_config()
+    config.load_kube_config()
     core = client.CoreV1Api()
     batch = client.BatchV1Api()
     w = watch.Watch()
