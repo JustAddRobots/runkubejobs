@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.4.0 (2020-11-19)
+------------------
+- Stage: Removed commented out KUBECONFIG env var. (c04138f) [JustAddRobots]
+- Stage: Added explicit kube config file path. (92b2815) [JustAddRobots]
+- Stage: Reverted back to load_kube_config, added config in root. (25a52ce) [JustAddRobots]
+- Stage: Added loading kubernetes config from within cluster. (3f8515c) [JustAddRobots]
+- LOAD-011: Disabled master node scheduling. (e6876ca) [JustAddRobots]
+
 0.3.0 (2020-11-17)
 ------------------
 - Stage: Added pod toleration to run on master node. (4d44a6e) [JustAddRobots]
