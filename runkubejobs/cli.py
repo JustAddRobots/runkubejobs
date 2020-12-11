@@ -218,8 +218,7 @@ def run(d):
 
     try:
         nodes = kubejobs.get_task_nodes(core, requested_nodes)
-    except RuntimeError as err:
-        logger.exception(err)
+    except RuntimeError:
         logger.info("Exiting.")
         sys.exit(1)
 
