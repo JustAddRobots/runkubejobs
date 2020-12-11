@@ -581,7 +581,8 @@ def get_task_nodes(core, requested_nodes):
                 try:
                     raise RuntimeError
                 except RuntimeError:
-                    logger.error("Unready Node Error: {0}".format(node))
+                    logger.exception("Node Not Ready Error: {0}".format(node))
+                    raise
         nodes = requested_nodes
     return nodes
 
