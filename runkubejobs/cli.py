@@ -216,7 +216,12 @@ def run(d):
             "kube-job-tmpl-{0}.yaml".format(task)
         ).name
 
-    nodes = kubejobs.get_task_nodes(core, requested_nodes)
+    try:
+        nodes = kubejobs.get_task_nodes(core, requested_nodes)
+    except RuntimeError as err:
+        logger.exception(err)
+        logger.info("Exiting.")
+        sys.exit(1)
 
     logger.info("Creating Watch() thread")
     stream = kubejobs.get_stream(w, core)

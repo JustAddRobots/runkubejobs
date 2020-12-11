@@ -569,7 +569,7 @@ def get_task_nodes(core, requested_nodes):
         nodes (list): Node list.
 
     Raises:
-        RuntimeError: Requested node not in ready node list.
+        RuntimeError: Requested node not in ready nodes list.
     """
     nodes = []
     ready_nodes = get_ready_nodes(core)
@@ -578,11 +578,7 @@ def get_task_nodes(core, requested_nodes):
     else:
         for node in requested_nodes:
             if node not in ready_nodes:
-                try:
-                    raise RuntimeError
-                except RuntimeError:
-                    logger.exception("Node Not Ready Error: {0}".format(node))
-                    raise
+                raise RuntimeError("Node Not Ready", node)
         nodes = requested_nodes
     return nodes
 
