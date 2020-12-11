@@ -558,9 +558,9 @@ def get_ready_nodes(core):
     return ready_nodes
 
 
-def get_test_nodes(core, requested_nodes):
+def get_task_nodes(core, requested_nodes):
     """
-    Get a list of nodes for test.
+    Get a list of nodes for task.
 
     Args:
         core (CoreV1Api): Kubernetes API.
@@ -582,7 +582,6 @@ def get_test_nodes(core, requested_nodes):
                     raise RuntimeError
                 except RuntimeError:
                     logger.error("Unready Node Error: {0}".format(node))
-                    raise
         nodes = requested_nodes
     return nodes
 

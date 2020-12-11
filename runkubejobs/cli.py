@@ -216,7 +216,7 @@ def run(d):
             "kube-job-tmpl-{0}.yaml".format(task)
         ).name
 
-    nodes = kubejobs.get_test_nodes(core, requested_nodes)
+    nodes = kubejobs.get_task_nodes(core, requested_nodes)
 
     logger.info("Creating Watch() thread")
     stream = kubejobs.get_stream(w, core)
