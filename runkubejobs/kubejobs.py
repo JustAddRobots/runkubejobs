@@ -558,6 +558,31 @@ def get_ready_nodes(core):
     return ready_nodes
 
 
+def get_task_nodes(core, requested_nodes):
+    """
+    Get a list of nodes for task.
+
+    Args:
+        core (CoreV1Api): Kubernetes API.
+
+    Returns:
+        nodes (list): Node list.
+
+    Raises:
+        RuntimeError: Requested node not in ready nodes list.
+    """
+    nodes = []
+    ready_nodes = get_ready_nodes(core)
+    if "all" in requested_nodes:
+        nodes = ready_nodes
+    else:
+        for node in requested_nodes:
+            if node not in ready_nodes:
+                raise RuntimeError("Node Not Ready", node)
+        nodes = requested_nodes
+    return nodes
+
+
 def get_dict_from_yaml(task, worker, filename, log_id, image):
     """
     Create a dictionary from a Kubernetes YAML template that will be used to

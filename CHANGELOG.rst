@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.5.0 (2020-12-11)
+------------------
+- Stage: Re-fixed Node Not Ready exception output. (58052b9) [JustAddRobots]
+- Stage: Changed exception handler output for Node Not Ready. (be5d2c5) [JustAddRobots]
+- Stage: Updated exception handling for Node Not Ready. (f30249e) [JustAddRobots]
+- Stage: Changed to logger.exception for Node Not Ready Error. (38bd2a8) [JustAddRobots]
+- Stage: Renamed get_task_nodes() (e206275) [JustAddRobots]
+- Stage: Fixed positional argument for get_test_nodes() (9a08bef) [JustAddRobots]
+- ISSUE-002: Updated for INI_URL, node check. (db70bb2) [JustAddRobots]
+
 0.4.0 (2020-11-19)
 ------------------
 - Stage: Removed commented out KUBECONFIG env var. (c04138f) [JustAddRobots]

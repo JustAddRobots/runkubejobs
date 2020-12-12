@@ -20,6 +20,8 @@ import kubernetes.client as client
 import kubernetes.watch as watch
 
 from engcommon import clihelper
+from engcommon import ini
+from engcommon.constants import _const as CONSTANTS
 from runkubejobs import kubejobs
 
 
@@ -36,19 +38,8 @@ def csv_str(vstr, sep = ","):
 
     Raises:
         ArgumentError: Non-string value detected.
-        ArgumentError: Value does not exist in allowed choices.
     """
     values = []
-    choices = [
-        "all",
-        "brisket",
-        "flatiron",
-        "porterhouse",
-        "ribeye",
-        "silverside",
-        "slimjim",
-        "sweetbreads",
-    ]
     for v in vstr.split(sep):
         try:
             v = str(v)
@@ -56,13 +47,7 @@ def csv_str(vstr, sep = ","):
             raise ArgumentError("Invalid value: {0}, must be string".format(v))
         else:
             v = v.strip(" ,")
-            if v not in choices:
-                try:
-                    raise ArgumentError("Invalid value: {0}, not in {1}".format(v, choices))
-                except ArgumentError:
-                    raise
-            else:
-                values.append(v)
+            values.append(v)
     return values
 
 
@@ -212,7 +197,8 @@ def run(d):
     my_cli.print_versions()
 
     # Setup Kubernetes config and API
-    config.load_kube_config("/opt/kube/config")
+    my_ini = ini.INIConfig(CONSTANTS().INI_URL)
+    config.load_kube_config(my_ini.kubeconfig)
     core = client.CoreV1Api()
     batch = client.BatchV1Api()
     w = watch.Watch()
@@ -221,7 +207,7 @@ def run(d):
 
     # Setup stream and child thread(s) of Kubernetes events
     task = d["task"]
-    nodes = d["nodes"]
+    requested_nodes = d["nodes"]
     image = d["image"]
     tmpl = d["tmpl"]
     if not tmpl:
@@ -229,6 +215,13 @@ def run(d):
             __name__,
             "kube-job-tmpl-{0}.yaml".format(task)
         ).name
+
+    try:
+        nodes = kubejobs.get_task_nodes(core, requested_nodes)
+    except RuntimeError as err:
+        logger.exception(err)
+        logger.info("Exiting.")
+        sys.exit(1)
 
     logger.info("Creating Watch() thread")
     stream = kubejobs.get_stream(w, core)
@@ -246,9 +239,6 @@ def run(d):
 
     logger.info("Creating workers")
     workers = {}
-    if "all" in nodes:
-        nodes = kubejobs.get_ready_nodes(core)
-
     for node in nodes:
         workers[node] = kubejobs.kubeJob(tmpl, task, node, log_id, image, core, batch, q_watch, w)
 
