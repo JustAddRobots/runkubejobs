@@ -65,13 +65,17 @@ pipeline {
             steps {
                 script {
                     IMG = ("""\
-                        ${env.DOCKERHOST}/runxhpl:\
-                        0.7.3-8x6_64
+                        ${env.DOCKERHOST}/runxhpl:default-x86_64
                     """.stripIndent().replaceAll("\\s","")
                     )
                 }
+                sh("""mkdir venv""")
+                sh("""python3 -m venv venv""")
+                sh("""activate""")
+                sh("""python3 -m pip install --upgrade pip setuptools""")
+                sh("""python3 -m pip install git+ssh://
                 sh("""\
-                        python3 /usr/local/bin/runkubejobs \
+                        python3 runkubejobs \
                         -d -t runxhpl \
                         -p /var/lib/jenkins/workspace/logs \
                         -n all -i ${IMG}
