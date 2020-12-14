@@ -38,7 +38,8 @@ setup(
     install_requires = [
         "kubernetes",
         "python-dateutil",
-        "engcommon @ git+ssh://git@engcommon.github.com/JustAddRobots/engcommon.git", ],
+        "engcommon @ git+https://github.com/JustAddRobots/engcommon.git",
+    ],
     entry_points = {
         "console_scripts": [
             "runkubejobs = runkubejobs.cli:main"
