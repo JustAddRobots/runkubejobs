@@ -8,7 +8,6 @@ def HASHSHORT
 def TAG
 def TAG_HASH
 def BRANCH
-def SERVER
 
 def DOCKERHOST
 def KUBECONFIG
@@ -22,7 +21,6 @@ def loadProperties() {
     echo "${props}"
     env.DOCKERHOST = props["dockerhost"]
     env.KUBECONFIG = props["kubeconfig"]
-    echo "DOCKERHOST: ${DOCKERHOST}"
 }
 
 pipeline {
@@ -39,26 +37,26 @@ pipeline {
         stage ('Create Tag Hash') {
             steps {
                 script {
-                    HASHLONG = sh(
+                    env.HASHLONG = sh(
                         returnStdout: true,
                         script: "git log -1 --pretty=%H --no-merges"
                     ).trim()
-                    HASHSHORT = sh(
+                    env.HASHSHORT = sh(
                         returnStdout: true,
                         script: "git log -1 --pretty=%h --no-merges"
                     ).trim()
-                    TAG = sh(
+                    env.TAG = sh(
                         returnStdout: true,
                         script: "git describe --tags --abbrev=0"
                     ).trim()
-                    TAG_HASH = "${TAG}-${HASHSHORT}-${ARCH}"
+                    env.TAG_HASH = "${TAG}-${HASHSHORT}-${ARCH}"
                 }
                 echo "ARCH: ${env.ARCH}"
                 echo "COMMIT: ${env.GIT_COMMIT}"
-                echo "HASHLONG: ${HASHLONG}"
-                echo "HASHSHORT: ${HASHSHORT}"
-                echo "TAG: ${TAG}"
-                echo "TAG_HASH: ${TAG_HASH}"
+                echo "HASHLONG: ${env.HASHLONG}"
+                echo "HASHSHORT: ${env.HASHSHORT}"
+                echo "TAG: ${env.TAG}"
+                echo "TAG_HASH: ${env.TAG_HASH}"
             }
         }
         stage ('Deploy to Kubernetes Cluster') {
@@ -73,7 +71,7 @@ pipeline {
                 sh("""python3 -m venv venv""")
                 sh("""activate""")
                 sh("""python3 -m pip install --upgrade pip setuptools""")
-                sh("""python3 -m pip install git+ssh://
+                sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/engcommon.git""")
                 sh("""\
                         python3 runkubejobs \
                         -d -t runxhpl \
@@ -90,7 +88,7 @@ pipeline {
                 color: "good",
                 message: """\
                     SUCCESS ${env.JOB_NAME} #${env.BUILD_NUMBER},
-                    v${TAG_HASH}, Took: ${currentBuild.durationString.replace(
+                    v${env.TAG_HASH}, Took: ${currentBuild.durationString.replace(
                         ' and counting', ''
                     )} (<${env.BUILD_URL}|Open>)
                 """.stripIndent()
@@ -101,7 +99,7 @@ pipeline {
                 color: "danger",
                 message: """\
                     FAILURE ${env.JOB_NAME} #${env.BUILD_NUMBER},
-                    v${TAG_HASH}, Took: ${currentBuild.durationString.replace(
+                    v${env.TAG_HASH}, Took: ${currentBuild.durationString.replace(
                         ' and counting', ''
                     )} (<${env.BUILD_URL}|Open>)
                 """.stripIndent()
