@@ -73,18 +73,16 @@ pipeline {
                     passwordVariable: 'GIT_PASSWORD',
                     usernameVariable: 'GIT_USERNAME'
                 )]){
-                    sh("""mkdir venv""")
-                    sh("""python3 -m venv venv""")
-                    sh("""source venv/bin/activate""")
-                    sh("""python3 -m pip install --upgrade pip""")
-                    sh("""python3 -m pip install --force-reinstall git+ssh://runkubejobs.github.com/JustAddRobots/runkubejobs.git@${env.HASHSHORT}""")
-                    sh("""\
-                            /var/lib/jenkins/.local/bin/runkubejobs \
+                    sh("""mkdir venv
+                        python3 -m venv venv
+                        source venv/bin/activate
+                        python3 -m pip install --upgrade pip
+                        python3 -m pip install --force-reinstall git+ssh://runkubejobs.github.com/JustAddRobots/runkubejobs.git@${env.HASHSHORT}
+                        runkubejobs \
                             --debug --task runxhpl \
                             --prefix /var/lib/jenkins/workspace/logs \
                             --nodes all --image ${IMG}
-                        """.stripIndent()
-                    )
+                    """.stripIndent())
                 }
             }
         }
