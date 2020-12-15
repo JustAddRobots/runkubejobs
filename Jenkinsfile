@@ -67,18 +67,25 @@ pipeline {
                     """.stripIndent().replaceAll("\\s","")
                     )
                 }
-                sh("""mkdir venv""")
-                sh("""python3 -m venv venv""")
-                sh("""activate""")
-                sh("""python3 -m pip install --upgrade pip setuptools""")
-                sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/engcommon.git""")
-                sh("""\
-                        python3 runkubejobs \
-                        -d -t runxhpl \
-                        -p /var/lib/jenkins/workspace/logs \
-                        -n all -i ${IMG}
-                    """.stripIndent()
-                )
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-runxhpl-multibranch-stage',
+                    passwordVariable: 'GIT_PASSWORD',
+                    usernameVariable: 'GIT_USERNAME'
+                )]){
+                    sh("""mkdir venv""")
+                    sh("""python3 -m venv venv""")
+                    sh("""source venv/bin/activate""")
+                    sh("""python3 -m pip install --upgrade pip setuptools""")
+                    sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/engcommon.git""")
+                    sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/runkubejobs.git@${HASHSHORT}""")
+                    sh("""\
+                            runkubejobs \
+                            -d -t runxhpl \
+                            -p /var/lib/jenkins/workspace/logs \
+                            -n all -i ${IMG}
+                        """.stripIndent()
+                    )
+                }
             }
         }
     }        
