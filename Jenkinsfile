@@ -73,18 +73,15 @@ pipeline {
                     usernameVariable: 'GIT_USERNAME'
                 )]){
                     sh("""mkdir venv""")
-                    sh("""pwd""")
                     sh("""python3 -m venv venv""")
                     sh("""source venv/bin/activate""")
-                    sh("""python3 -m pip --version""")
                     sh("""python3 -m pip install --upgrade pip""")
-                    sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/engcommon.git""")
                     sh("""python3 -m pip install --force-reinstall git+ssh://runkubejobs.github.com/JustAddRobots/runkubejobs.git@${env.HASHSHORT}""")
                     sh("""\
                             /var/lib/jenkins/.local/bin/runkubejobs \
-                            -d -t runxhpl \
-                            -p /var/lib/jenkins/workspace/logs \
-                            -n all -i ${IMG}
+                            --debug --task runxhpl \
+                            --prefix /var/lib/jenkins/workspace/logs \
+                            --nodes all --image ${IMG}
                         """.stripIndent()
                     )
                 }
