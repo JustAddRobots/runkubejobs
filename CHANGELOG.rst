@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.6.1 (2020-12-15)
+------------------
+- ISSUE-020: Added Jenkins/python venv workaround. (b292ae9) [JustAddRobots]
+
 0.6.0 (2020-12-15)
 ------------------
 - Stage: Added delete tags stage for main branch. (c95ca38) [JustAddRobots]
