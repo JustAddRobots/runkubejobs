@@ -73,6 +73,7 @@ pipeline {
                     usernameVariable: 'GIT_USERNAME'
                 )]){
                     sh("""mkdir venv""")
+                    sh("""pwd""")
                     sh("""python3 -m venv venv""")
                     sh("""source venv/bin/activate""")
                     sh("""python3 -m pip --version""")
@@ -80,7 +81,7 @@ pipeline {
                     sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/engcommon.git""")
                     sh("""python3 -m pip install --force-reinstall git+ssh://runkubejobs.github.com/JustAddRobots/runkubejobs.git@${env.HASHSHORT}""")
                     sh("""\
-                            python3 runkubejobs \
+                            /var/lib/jenkins/.local/bin/runkubejobs \
                             -d -t runxhpl \
                             -p /var/lib/jenkins/workspace/logs \
                             -n all -i ${IMG}
