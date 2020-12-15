@@ -75,9 +75,9 @@ pipeline {
                     sh("""mkdir venv""")
                     sh("""python3 -m venv venv""")
                     sh("""source venv/bin/activate""")
-                    sh("""python3 -m pip install --upgrade pip setuptools""")
-                    sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/engcommon.git""")
-                    sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/runkubejobs.git@${env.HASHSHORT}""")
+                    sh("""python3 -m pip install --user --upgrade pip setuptools""")
+                    sh("""python3 -m pip install --user --force-reinstall git+https://github.com/JustAddRobots/engcommon.git""")
+                    sh("""python3 -m pip install --user --force-reinstall git+https://github.com/JustAddRobots/runkubejobs.git@${env.HASHSHORT}""")
                     sh("""\
                             runkubejobs \
                             -d -t runxhpl \
