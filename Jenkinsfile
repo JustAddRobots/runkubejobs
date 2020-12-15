@@ -49,7 +49,7 @@ pipeline {
                         returnStdout: true,
                         script: "git describe --tags --abbrev=0"
                     ).trim()
-                    env.TAG_HASH = "${TAG}-${HASHSHORT}-${ARCH}"
+                    env.TAG_HASH = "${env.TAG}-${env.HASHSHORT}-${env.ARCH}"
                 }
                 echo "ARCH: ${env.ARCH}"
                 echo "COMMIT: ${env.GIT_COMMIT}"
@@ -77,7 +77,7 @@ pipeline {
                     sh("""source venv/bin/activate""")
                     sh("""python3 -m pip install --upgrade pip setuptools""")
                     sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/engcommon.git""")
-                    sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/runkubejobs.git@${HASHSHORT}""")
+                    sh("""python3 -m pip install --force-reinstall git+https://github.com/JustAddRobots/runkubejobs.git@${env.HASHSHORT}""")
                     sh("""\
                             runkubejobs \
                             -d -t runxhpl \
