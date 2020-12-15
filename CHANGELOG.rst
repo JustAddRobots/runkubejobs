@@ -1,6 +1,23 @@
 Changelog
 =========
 
+0.6.0 (2020-12-15)
+------------------
+- Stage: Added delete tags stage for main branch. (c95ca38) [JustAddRobots]
+- Stage: Cleaned up. (00c1d99) [JustAddRobots]
+- Stage: Added absolute path for runkubejobs. (2709780) [JustAddRobots]
+- Stage: Added pip version check. (57e7281) [JustAddRobots]
+- Stage: Added Deploy Key. (88c8e7a) [JustAddRobots]
+- Stage: Added --user for pip install. (0221391) [JustAddRobots]
+- Stage: Fixed env var name. (b06fbd2) [JustAddRobots]
+- Stage: Added python scripting bits using withCredentials. (862850d) [JustAddRobots]
+- ISSUE-020: Added engcommon @ git+https, fixed env var names. (267e4d1) [JustAddRobots]
+- ISSUE-020: Added bits for autodeployment of RC. (1a2c570) [JustAddRobots]
+- ISSUE-020: Added Jenkinsfile. (e63e840) [JustAddRobots]
+- ISSUE-024: Updated engcommon link. (8a2d0d3) [JustAddRobots]
+- ISSUE-022: Added License, updated setup.py. (fc5a0b3) [JustAddRobots]
+- ISSUE-022: Added README. (c5c03d7) [JustAddRobots]
+
 0.5.0 (2020-12-11)
 ------------------
 - Stage: Re-fixed Node Not Ready exception output. (58052b9) [JustAddRobots]
