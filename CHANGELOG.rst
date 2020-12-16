@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.6.3 (2020-12-16)
+------------------
+- ISSUE-030: Disabled delete tag stage. (fc01c33) [JustAddRobots]
+- ISSUE-030: Disabled delete tag stage. (51ba4cb) [JustAddRobots]
+
 0.6.1 (2020-12-15)
 ------------------
 - ISSUE-020: Added Jenkins/python venv workaround. (b292ae9) [JustAddRobots]
