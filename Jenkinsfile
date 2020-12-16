@@ -88,7 +88,7 @@ pipeline {
         }
         stage('Delete RC Tags') {
             when {
-                branch 'main'
+                branch 'foo'  // disabled for now, See ISSUE-030.
             }
             steps {
                 script {
