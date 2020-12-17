@@ -63,88 +63,99 @@ sendai   Ready    <none>   23d   v1.19.3
 
 Run task on selected nodes
 ```
-❯ runkubejobs --debug --task runxhpl --nodes ono,sendai --image hosaka.local:5000/runxhpl:0.7.3-10e1187-x86_64
-2020-12-11 00:41:29 - INFO [clihelper]: runkubejobs v: 0.5.0
-2020-12-11 00:41:29 - DEBUG [clihelper]: engcommon v: 0.5.2
-2020-12-11 00:41:29 - DEBUG [clihelper]: {'debug': True,
+❯ runkubejobs --debug --task runxhpl --prefix /var/lib/jenkins/workspace/logs --nodes all --image hosaka.local:5000/runxhpl:0.10.0-5851277-x86_64
+2020-12-16 20:01:04 - INFO [clihelper]: runkubejobs v: 0.7.2
+2020-12-16 20:01:04 - DEBUG [clihelper]: engcommon v: 0.6.2
+2020-12-16 20:01:04 - DEBUG [clihelper]: {'debug': True,
  'debug_api': False,
- 'image': 'hosaka.local:5000/runxhpl:0.7.3-10e1187-x86_64',
+ 'image': 'hosaka.local:5000/runxhpl:0.10.0-5851277-x86_64',
  'log_id': None,
- 'nodes': ['ono', 'sendai'],
+ 'nodes': ['all'],
  'prefix': '/tmp/logs',
  'task': 'runxhpl',
  'tmpl': None}
-2020-12-11 00:41:29 - INFO [cli]: Creating Watch() thread
-2020-12-11 00:41:29 - INFO [cli]: Creating workers
-2020-12-11 00:41:29 - INFO [kubejobs]: Creating worker: runxhpl-ono
-2020-12-11 00:41:29 - INFO [kubejobs]: Creating worker: runxhpl-sendai
-2020-12-11 00:41:30 - DEBUG [kubejobs]: ... runxhpl-ono-9k6w7        Pulling
-2020-12-11 00:41:30 - DEBUG [kubejobs]: ... runxhpl-ono-9k6w7        Pulled
-2020-12-11 00:41:30 - DEBUG [kubejobs]: ... runxhpl-ono-9k6w7        Created
-2020-12-11 00:41:30 - DEBUG [kubejobs]: ... runxhpl-sendai-nxsc8     Pulling
-2020-12-11 00:41:30 - DEBUG [kubejobs]: ... runxhpl-ono-9k6w7        Started
-2020-12-11 00:41:30 - DEBUG [kubejobs]: ... runxhpl-sendai-nxsc8     Pulled
-2020-12-11 00:41:30 - DEBUG [kubejobs]: ... runxhpl-sendai-nxsc8     Created
-2020-12-11 00:41:30 - DEBUG [kubejobs]: ... runxhpl-sendai-nxsc8     Started
-2020-12-11 00:41:41 - DEBUG [kubejobs]: ... runxhpl-sendai           Completed
-2020-12-11 00:42:10 - DEBUG [kubejobs]: ... runxhpl-ono              Completed
-2020-12-11 00:42:10 - INFO [cli]: Cleaning up
-2020-12-11 00:42:10 - INFO [kubejobs]: Deleting obj: runxhpl-ono
-2020-12-11 00:42:10 - INFO [kubejobs]: Deleting obj: runxhpl-sendai
-2020-12-11 00:42:10 - INFO [clihelper]: LOGS: /tmp/logs/hosaka/cleverly-buttery-amphibia/runkubejobs.2020.12.11-004129
+2020-12-16 20:01:04 - INFO [cli]: Creating Watch() thread
+2020-12-16 20:01:04 - INFO [cli]: Creating workers
+2020-12-16 20:01:04 - INFO [kubejobs]: Creating worker: runxhpl-ono
+2020-12-16 20:01:04 - INFO [kubejobs]: Creating worker: runxhpl-sendai
+2020-12-16 20:01:05 - DEBUG [kubejobs]: ... runxhpl-ono-kbg7j        Pulling
+2020-12-16 20:01:05 - DEBUG [kubejobs]: ... runxhpl-sendai-ttf8p     Pulling
+2020-12-16 20:01:09 - DEBUG [kubejobs]: ... runxhpl-ono-kbg7j        Pulled
+2020-12-16 20:01:09 - DEBUG [kubejobs]: ... runxhpl-ono-kbg7j        Created
+2020-12-16 20:01:09 - DEBUG [kubejobs]: ... runxhpl-ono-kbg7j        Started
+2020-12-16 20:01:13 - DEBUG [kubejobs]: ... runxhpl-sendai-ttf8p     Pulled
+2020-12-16 20:01:13 - DEBUG [kubejobs]: ... runxhpl-sendai-ttf8p     Created
+2020-12-16 20:01:13 - DEBUG [kubejobs]: ... runxhpl-sendai-ttf8p     Started
+2020-12-16 20:01:58 - DEBUG [kubejobs]: ... runxhpl-sendai           Completed
+2020-12-16 20:02:21 - DEBUG [kubejobs]: ... runxhpl-ono              Completed
+2020-12-16 20:02:21 - INFO [cli]: Cleaning up
+2020-12-16 20:02:21 - INFO [kubejobs]: Deleting obj: runxhpl-ono
+2020-12-16 20:02:21 - INFO [kubejobs]: Deleting obj: runxhpl-sendai
+2020-12-16 20:02:21 - INFO [clihelper]: LOGS: /tmp/logs/hosaka/keenly-bursal-ashtray/runkubejobs.2020.12.16-200104
+
 ```
 
 Task logs are saved to each node.
 
 node: ono
 ```
-❯ cat /tmp/logs/ono/cleverly-buttery-amphibia/runxhpl.2020.12.11-004130/runxhpl.debug.1.log
-2020-12-11 00:41:30 - INFO [clihelper]: runxhpl v: 0.7.3
-2020-12-11 00:41:30 - DEBUG [clihelper]: engcommon v: 0.5.2
-2020-12-11 00:41:30 - DEBUG [clihelper]: {'debug': True, 'log_id': 'cleverly-buttery-amphibia', 'mem': 10, 'prefix': '/tmp/logs', 'runs': 2, 'upload': None}
-2020-12-11 00:41:30 - DEBUG [xhpl]: CORES: 4, MEM: 16 GB
-2020-12-11 00:41:30 - DEBUG [xhpl]: MEM_PERCENT: 10, RUNS: 2
-2020-12-11 00:41:30 - DEBUG [xhpl]: MEM_XHPL: 1 GB
-2020-12-11 00:41:30 - DEBUG [xhpl]: Generating HPL.dat
-2020-12-11 00:41:30 - DEBUG [xhpl]: {'N': 14784, 'NB': 336, 'P': 1, 'Q': 4}
-2020-12-11 00:41:30 - DEBUG [xhpl]: HPL.dat: /usr/local/lib/python3.6/site-packages/runxhpl/bin/HPL.dat
-2020-12-11 00:41:30 - DEBUG [xhpl]: 'mpirun --allow-run-as-root -mca btl_vader_single_copy_mechanism none -np 4 xhpl-x86_64'
-2020-12-11 00:41:30 - INFO [xhpl]: Starting XHPL
-2020-12-11 00:41:30 - INFO [xhpl]: STATUS     TEST     RUN TIME      GFLOPS
-2020-12-11 00:41:30 - INFO [xhpl]: STARTED    xhpl      #1
-2020-12-11 00:41:49 - INFO [xhpl]: PASSED     xhpl      #1 15.31     1.407e+02
-2020-12-11 00:41:50 - INFO [xhpl]: STARTED    xhpl      #2
-2020-12-11 00:42:09 - INFO [xhpl]: PASSED     xhpl      #2 15.23     1.415e+02
-2020-12-11 00:42:09 - INFO [cli]: Status: PASSED
-2020-12-11 00:42:09 - INFO [cli]: Mean Gflops: 141.1
-2020-12-11 00:42:09 - INFO [clihelper]: LOGS: /tmp/logs/ono/cleverly-buttery-amphibia/runxhpl.2020.12.11-004130
-2020-12-11 00:42:09 - INFO [cli]: Done.
+❯ cat  /tmp/logs/ono/keenly-bursal-ashtray/runxhpl.2020.12.16-200109/runxhpl.debug.1.log
+2020-12-16 20:01:09 - INFO [clihelper]: runxhpl v: 0.10.0
+2020-12-16 20:01:09 - DEBUG [clihelper]: engcommon v: 0.6.2
+2020-12-16 20:01:09 - DEBUG [clihelper]: {'debug': True, 'log_id': 'keenly-bursal-ashtray', 'mem': 10, 'prefix': '/tmp/logs', 'runs': 2, 'upload': 'http://hosaka.local:3456/v1/machines'}
+2020-12-16 20:01:09 - DEBUG [xhpl]: CORES: 4, MEM: 27 GB
+2020-12-16 20:01:09 - DEBUG [xhpl]: MEM_PERCENT: 10, RUNS: 2
+2020-12-16 20:01:09 - DEBUG [xhpl]: MEM_XHPL: 2 GB
+2020-12-16 20:01:09 - DEBUG [xhpl]: Generating HPL.dat
+2020-12-16 20:01:09 - DEBUG [xhpl]: {'N': 18816, 'NB': 336, 'P': 1, 'Q': 4}
+2020-12-16 20:01:09 - DEBUG [xhpl]: HPL.dat: /usr/local/lib/python3.6/site-packages/runxhpl/bin/HPL.dat
+2020-12-16 20:01:09 - DEBUG [xhpl]: 'mpirun --allow-run-as-root -mca btl_vader_single_copy_mechanism none -np 4 xhpl-x86_64'
+2020-12-16 20:01:09 - INFO [xhpl]: Starting XHPL
+2020-12-16 20:01:09 - INFO [xhpl]: STATUS     TEST     RUN TIME      GFLOPS
+2020-12-16 20:01:09 - INFO [xhpl]: STARTED    xhpl      #1
+2020-12-16 20:01:44 - INFO [xhpl]: PASSED     xhpl      #1 29.85     1.488e+02
+2020-12-16 20:01:45 - INFO [xhpl]: STARTED    xhpl      #2
+2020-12-16 20:02:20 - INFO [xhpl]: PASSED     xhpl      #2 30.13     1.474e+02
+2020-12-16 20:02:20 - INFO [cli]: Status: PASSED
+2020-12-16 20:02:20 - INFO [cli]: Mean Gflops: 148.10000000000002
+2020-12-16 20:02:20 - INFO [clihelper]: LOGS: /tmp/logs/ono/keenly-bursal-ashtray/runxhpl.2020.12.16-200109
+2020-12-16 20:02:20 - INFO [cli]: Uploading to Database
+2020-12-16 20:02:20 - DEBUG [connectionpool]: Starting new HTTP connection (1): hosaka.local:3456
+2020-12-16 20:02:20 - DEBUG [connectionpool]: http://hosaka.local:3456 "POST /v1/machines HTTP/1.1" 200 0
+2020-12-16 20:02:20 - INFO [cli]: Done.
 ```
 
 node: sendai
 ```
-❯ cat /tmp/logs/sendai/cleverly-buttery-amphibia/runxhpl.2020.12.11-004131/runxhpl.debug.1.log
-2020-12-11 00:41:31 - INFO [clihelper]: runxhpl v: 0.7.3
-2020-12-11 00:41:31 - DEBUG [clihelper]: engcommon v: 0.5.2
-2020-12-11 00:41:31 - DEBUG [clihelper]: {'debug': True, 'log_id': 'cleverly-buttery-amphibia', 'mem': 10, 'prefix': '/tmp/logs', 'runs': 2, 'upload': None}
-2020-12-11 00:41:31 - DEBUG [xhpl]: CORES: 4, MEM: 3 GB
-2020-12-11 00:41:31 - DEBUG [xhpl]: MEM_PERCENT: 10, RUNS: 2
-2020-12-11 00:41:31 - DEBUG [xhpl]: MEM_XHPL: 0 GB
-2020-12-11 00:41:31 - DEBUG [xhpl]: Generating HPL.dat
-2020-12-11 00:41:31 - DEBUG [xhpl]: {'N': 6144, 'NB': 256, 'P': 1, 'Q': 4}
-2020-12-11 00:41:31 - DEBUG [xhpl]: HPL.dat: /usr/local/lib/python3.6/site-packages/runxhpl/bin/HPL.dat
-2020-12-11 00:41:31 - DEBUG [xhpl]: 'mpirun --allow-run-as-root -mca btl_vader_single_copy_mechanism none -np 4 xhpl-x86_64'
-2020-12-11 00:41:31 - INFO [xhpl]: Starting XHPL
-2020-12-11 00:41:31 - INFO [xhpl]: STATUS     TEST     RUN TIME      GFLOPS
-2020-12-11 00:41:31 - INFO [xhpl]: STARTED    xhpl      #1
-2020-12-11 00:41:35 - INFO [xhpl]: PASSED     xhpl      #1 2.91      5.314e+01
-2020-12-11 00:41:36 - INFO [xhpl]: STARTED    xhpl      #2
-2020-12-11 00:41:41 - INFO [xhpl]: PASSED     xhpl      #2 2.87      5.388e+01
-2020-12-11 00:41:41 - INFO [cli]: Status: PASSED
-2020-12-11 00:41:41 - INFO [cli]: Mean Gflops: 53.510000000000005
-2020-12-11 00:41:41 - INFO [clihelper]: LOGS: /tmp/logs/sendai/cleverly-buttery-amphibia/runxhpl.2020.12.11-004131
-2020-12-11 00:41:41 - INFO [cli]: Done.
+❯ cat /tmp/logs/sendai/keenly-bursal-ashtray/runxhpl.2020.12.16-200114/runxhpl.debug.1.log
+2020-12-16 20:01:14 - INFO [clihelper]: runxhpl v: 0.10.0
+2020-12-16 20:01:14 - DEBUG [clihelper]: engcommon v: 0.6.2
+2020-12-16 20:01:14 - DEBUG [clihelper]: {'debug': True, 'log_id': 'keenly-bursal-ashtray', 'mem': 10, 'prefix': '/tmp/logs', 'runs': 2, 'upload': 'http://hosaka.local:3456/v1/machines'}
+2020-12-16 20:01:14 - DEBUG [xhpl]: CORES: 4, MEM: 9 GB
+2020-12-16 20:01:14 - DEBUG [xhpl]: MEM_PERCENT: 10, RUNS: 2
+2020-12-16 20:01:14 - DEBUG [xhpl]: MEM_XHPL: 0 GB
+2020-12-16 20:01:14 - DEBUG [xhpl]: Generating HPL.dat
+2020-12-16 20:01:14 - DEBUG [xhpl]: {'N': 10240, 'NB': 256, 'P': 1, 'Q': 4}
+2020-12-16 20:01:14 - DEBUG [xhpl]: HPL.dat: /usr/local/lib/python3.6/site-packages/runxhpl/bin/HPL.dat
+2020-12-16 20:01:14 - DEBUG [xhpl]: 'mpirun --allow-run-as-root -mca btl_vader_single_copy_mechanism none -np 4 xhpl-x86_64'
+2020-12-16 20:01:14 - INFO [xhpl]: Starting XHPL
+2020-12-16 20:01:14 - INFO [xhpl]: STATUS     TEST     RUN TIME      GFLOPS
+2020-12-16 20:01:14 - INFO [xhpl]: STARTED    xhpl      #1
+2020-12-16 20:01:29 - INFO [xhpl]: PASSED     xhpl      #1 12.13     5.901e+01
+2020-12-16 20:01:30 - INFO [xhpl]: STARTED    xhpl      #2
+2020-12-16 20:01:58 - INFO [xhpl]: PASSED     xhpl      #2 22.47     3.186e+01
+2020-12-16 20:01:58 - INFO [cli]: Status: PASSED
+2020-12-16 20:01:58 - INFO [cli]: Mean Gflops: 45.435
+2020-12-16 20:01:58 - INFO [clihelper]: LOGS: /tmp/logs/sendai/keenly-bursal-ashtray/runxhpl.2020.12.16-200114
+2020-12-16 20:01:58 - INFO [cli]: Uploading to Database
+2020-12-16 20:01:58 - DEBUG [connectionpool]: Starting new HTTP connection (1): hosaka.local:3456
+2020-12-16 20:01:58 - DEBUG [connectionpool]: http://hosaka.local:3456 "POST /v1/machines HTTP/1.1" 200 0
+2020-12-16 20:01:58 - INFO [cli]: Done.
 ```
+
+## Todo
+
+Rewrite in golang. ;)
 
 ## License
 
