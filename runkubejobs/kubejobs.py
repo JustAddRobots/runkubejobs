@@ -6,6 +6,12 @@ This module implements a custom Kubernetes Job controller.
 This fills the gap between the Kubernetes Job and DaemonSet controllers.
 It runs *once* on multiple nodes (almost) simultaneously and does not
 restart regardless of success or failure.
+
+It is not a "true" Job controller, since jobs are spawned separately and
+independently parsed asynchronously. The next step would be to properly
+encapsulate the instance variables so that the asynchronous event parser
+references those members and their methods.
+
 """
 
 import datetime
@@ -30,15 +36,13 @@ class kubeJob:
     This class is really only used to facilitate spawning the jobs. It requires
     organised instantiation using CLI options parsed into a Kubernetes YAML
     template. After the job is spawned, the generic non-class functions in this
-    module administer the job through the Kubernetes API.
+    module parse job events through the Kubernetes API.
 
     Attributes:
-        core (CoreV1Api): Kubernetes API.
-        batch (BatchV1Api): Kubernetes API.
         worker_yaml (dict): Dict of Kubernetes YAML with runtime substitutions.
         job (V1Job): Job spawned from worker_yaml.
     """
-    def __init__(self, tmpl, task, node, log_id, image, core, batch, q, w):
+    def __init__(self, tmpl, task, node, log_id, image):
         """
         Init with CLI options
 
@@ -48,15 +52,9 @@ class kubeJob:
             node (str): Name of worker node.
             log_id (str): log_id (unique ID) of run.
             image (str): Docker image to run on worker node.
-            core (CoreV1Api): Kubernetes API.
-            batch (BatchV1Api): Kubernetes API.
-            q (Queue): Queue for Kubernetes event stream.
-            w (Watch): Kubernetes Watch object that genereates the event stream.
         """
-        self.core = core
-        self.batch = batch
         self.worker_yaml = get_dict_from_yaml(task, node, tmpl, log_id, image)
-        self.job = self.spawn_job(task, node, batch)
+        self.job = self.spawn_job(task, node)
 
     def job_exists(self):
         """
@@ -74,8 +72,9 @@ class kubeJob:
         Raises:
             ApiException: An error occured reading the job.
         """
+        batch = client.BatchV1Api()
         try:
-            job = self.batch.read_namespaced_job(
+            job = batch.read_namespaced_job(
                 self.worker_yaml["metadata"]["name"],
                 "default",
             )
@@ -95,7 +94,7 @@ class kubeJob:
             time.sleep(1)
         return None
 
-    def spawn_job(self, task, node, batch):
+    def spawn_job(self, task, node):
         """
         Spawn a Kubernetes job on a Kubernetes node.
 
@@ -104,7 +103,6 @@ class kubeJob:
         Args:
             task (str): Type of job to run (e.g. runxhpl).
             node (str): Name of the node on which to run the job.
-            batch (BatchV1Api): Kubernetes API.
 
         Returns:
             job (V1Job): Spawned job.
@@ -117,7 +115,7 @@ class kubeJob:
         (exists, job) = self.job_exists()
         if exists:
             logger.info("Found existing job: {0}".format(job.metadata.name))
-            delete_obj(job, batch)
+            delete_obj(job)
             self.wait_for_delete()
 
         logger.info("Creating worker: {0}-{1}".format(task, node))
@@ -128,19 +126,17 @@ class kubeJob:
                 raise err
             else:
                 job = get_job(
-                    self.worker_yaml["metadata"]["name"],
-                    batch,
+                    self.worker_yaml["metadata"]["name"]
                 )
         return job
 
 
-def delete_obj(obj, api):
+def delete_obj(obj):
     """
     Delete Kubernetes object (job or pod) in the default namespace.
 
     Args:
         obj (V1Job or V1Pod): Object to delete.
-        api (BatchV1Api or CoreV1Api): Kubernetes API.
 
     Returns:
         None
@@ -157,6 +153,10 @@ def delete_obj(obj, api):
     kw_params = {
         "propagation_policy": "Foreground",
     }
+    if obj.kind.lower() == "job":
+        api = client.BatchV1Api()
+    elif obj.kind.lower() == "pod":
+        api = client.CoreV1Api()
     try:
         getattr(api, fn)(*params, **kw_params)
     except ApiException as err:
@@ -164,17 +164,17 @@ def delete_obj(obj, api):
     return None
 
 
-def get_stream(w, core):
+def get_stream(w):
     """
     Get Kubernetes Watch event stream in the default namespace.
 
     Args:
         w (Kubernetes Watch object): Kubernetes Watch.
-        core (CoreV1Api): Kubernetes API.
 
     Returns:
         stream (V1EventList): event stream list.
     """
+    core = client.CoreV1Api()
     fn_dict = {
         "core.list_namespaced_event": core.list_namespaced_event,
     }
@@ -241,13 +241,12 @@ def get_thread(q, stream):
     return t
 
 
-def get_job(name, batch):
+def get_job(name):
     """
     Get Kubernetes job in the default namespace.
 
     Args:
         name (str): Name of the job.
-        batch (BatchV1Api): Kubernetes API.
 
     Returns:
         job (V1Job): Queried job
@@ -255,6 +254,7 @@ def get_job(name, batch):
     Raises:
         ApiException: An error occured reading the job.
     """
+    batch = client.BatchV1Api()
     try:
         job = batch.read_namespaced_job(
             name,
@@ -265,13 +265,12 @@ def get_job(name, batch):
     return job
 
 
-def get_pod(obj, core):
+def get_pod(obj):
     """
     Get Kubernetes pod in the default namespace.
 
     Args:
         obj (str or V1Job): Name of the pod or its V1Job parent.
-        core (CoreV1Api): Kubernetes API.
 
     Returns:
         pod (V1Pod): Queried pod.
@@ -280,6 +279,7 @@ def get_pod(obj, core):
         ApiException: An error occured listing the job.
         ApiException: An error occured reading the pod.
     """
+    core = client.CoreV1Api()
     if isinstance(obj, client.models.v1_job.V1Job):
         job = obj
         try:
@@ -303,13 +303,12 @@ def get_pod(obj, core):
     return pod
 
 
-def get_pod_log(pod_name, core):
+def get_pod_log(pod_name):
     """
     Get the log of a Kubernetes Pod.
 
     Args:
         pod_name (str): Name of the pod.
-        core (CoreV1Api): Kubernetes API.
 
     Returns:
         str_ (str): pod log
@@ -317,6 +316,7 @@ def get_pod_log(pod_name, core):
     Raises:
         ApiException: An error occured reading the pod log
     """
+    core = client.CoreV1Api()
     try:
         str_ = core.read_namespaced_pod_log(pod_name, "default")
     except ApiException as err:
@@ -324,7 +324,7 @@ def get_pod_log(pod_name, core):
     return str_
 
 
-def get_like_objs(obj, api):
+def get_like_objs(obj):
     """
     Get similar Kubernetes objects (jobs/pods) according to metadata labels.
 
@@ -333,7 +333,6 @@ def get_like_objs(obj, api):
 
     Args:
         obj (V1Job or V1Pod): Queried object.
-        api (BatchV1Api or CoreV1Api): Kubernetes API.
 
     Returns:
         list_.items (list V1Job or V1Pod): list of objects like target object.
@@ -348,11 +347,15 @@ def get_like_objs(obj, api):
             obj.metadata.labels["log-id"]
         ),
     }
+    if obj.kind.lower() == "job":
+        api = client.BatchV1Api()
+    elif obj.kind.lower() == "pod":
+        api = client.CoreV1Api()
     list_ = getattr(api, fn)(*params, **kw_params)
     return list_.items
 
 
-def gen_like_job_status(job, batch):
+def gen_like_job_status(job):
     """
     Generate the statuses of similar Kubernetes jobs.
 
@@ -362,13 +365,12 @@ def gen_like_job_status(job, batch):
 
     Args:
         job (V1Job): Query object.
-        batch (BatchV1Api): Kubernetes API.
 
     Yields:
         status (generator): Job statusues generator object.
     """
     status = ""
-    for jb in get_like_objs(job, batch):
+    for jb in get_like_objs(job):
         if jb.status:
             if jb.status.failed:
                 status = "Failed"
@@ -410,7 +412,7 @@ def log_event(ev):
     return None
 
 
-def is_failed(ev_type, job, pod, batch, q_exc):
+def is_failed(ev_type, job, pod, q_exc):
     """
     Check if Kubernetes Job/Pod in Kubernetes Event has failed.
 
@@ -421,7 +423,6 @@ def is_failed(ev_type, job, pod, batch, q_exc):
         ev_type (str): type of event, from V1Event.type.
         job (V1Job): Query job.
         pod (V1Pod): Query pod.
-        batch (BatchV1Api): Kubernetes API.
         q_exc (Queue): Queue to pass job/pod exceptions to main thread.
 
     Return:
@@ -464,7 +465,7 @@ def is_failed(ev_type, job, pod, batch, q_exc):
     return failed
 
 
-def is_completed(job, batch):
+def is_completed(job):
     """
     Check if Kubernetes Job is completed.
 
@@ -474,20 +475,18 @@ def is_completed(job, batch):
 
     Args:
         job (V1Job): Query job.
-        batch (BatchV1Api): Kubernetes API.
 
     Returns:
         completed (bool): Whether the job is completed.
     """
     completed = False
-
-    like_job_status = list(gen_like_job_status(job, batch))
+    like_job_status = list(gen_like_job_status(job))
     if all(list(i == "Succeeded" for i in like_job_status)):
         completed = True
     return completed
 
 
-def parse_queue(q_watch, q_exc, batch, core):
+def parse_queue(q_watch, q_exc):
     """
     Parse a Kubernetes event stream.
 
@@ -501,8 +500,6 @@ def parse_queue(q_watch, q_exc, batch, core):
     Args:
         q_watch (Queue): Queue to receive async Kubernetes Watch events.
         q_exc (Queue): Queue to pass exceptions to main thread.
-        batch (BatchV1Api): Kubernetes API.
-        core (CoreV1Api): Kubernetes API.
 
     Return:
         None
@@ -514,33 +511,34 @@ def parse_queue(q_watch, q_exc, batch, core):
             log_event(ev)
             obj = ev.involved_object
             if obj.kind.lower() == "job":
-                job = get_job(obj.name, batch)
-                pod = get_pod(job, core)
+                job = get_job(obj.name)
+                pod = get_pod(job)
             elif obj.kind.lower() == "pod":
-                pod = get_pod(obj.name, core)
-                job = get_job(pod.metadata.name.rsplit("-", 1)[0], batch)
+                pod = get_pod(obj.name)
+                job = get_job(pod.metadata.name.rsplit("-", 1)[0])
 
             if (
-                is_completed(job, batch)
-                or is_failed(ev.type, job, pod, batch, q_exc)
+                is_completed(job)
+                or is_failed(ev.type, job, pod, q_exc)
             ):
                 break
     return None
 
 
-def get_ready_nodes(core):
+def get_ready_nodes():
     """
     Get a list of nodes ready to schedule jobs.
 
     Ignore the master node or any nodes drained / cordoned.
 
     Args:
-        core (CoreV1Api): Kubernetes API.
+        None
 
     Returns:
         ready_nodes (list): Node list.
     """
     ready_nodes = []
+    core = client.CoreV1Api()
     list_ = core.list_node()
     for i in list_.items:
         if not (
@@ -558,12 +556,12 @@ def get_ready_nodes(core):
     return ready_nodes
 
 
-def get_task_nodes(core, requested_nodes):
+def get_task_nodes(requested_nodes):
     """
     Get a list of nodes for task.
 
     Args:
-        core (CoreV1Api): Kubernetes API.
+        None
 
     Returns:
         nodes (list): Node list.
@@ -572,7 +570,7 @@ def get_task_nodes(core, requested_nodes):
         RuntimeError: Requested node not in ready nodes list.
     """
     nodes = []
-    ready_nodes = get_ready_nodes(core)
+    ready_nodes = get_ready_nodes()
     if "all" in requested_nodes:
         nodes = ready_nodes
     else:
