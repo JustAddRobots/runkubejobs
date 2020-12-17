@@ -36,7 +36,7 @@ spec:
                 -   name: LOGID
                     value: "--logid $LOGID"
                 -   name: MEM
-                    value: "--mem 15"
+                    value: "--mem 10"
                 -   name: RUNS
                     value: "--runs 2"
                 -   name: UPLOAD
