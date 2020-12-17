@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.7.1 (2020-12-17)
+------------------
+- ISSUE-035: Added upload CLI option, increased mem to 20% (0189eb3) [JustAddRobots]
+- ISSUE-035: Added slackSend for build start. (46a3de7) [JustAddRobots]
+
 0.7.0 (2020-12-17)
 ------------------
 - ISSUE-018: Removed unnecessary core/batch parameters. (fd85366) [JustAddRobots]
