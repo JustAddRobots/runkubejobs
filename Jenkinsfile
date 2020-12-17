@@ -83,7 +83,7 @@ pipeline {
                         python3 -m venv venv
                         source venv/bin/activate
                         python3 -m pip install --upgrade pip
-                        python3 -m pip install --force-reinstall git+ssh://runkubejobs.github.com/JustAddRobots/runkubejobs.git@${env.HASHSHORT}
+                        python3 -m pip install --force-reinstall git+http://github.com/JustAddRobots/runkubejobs.git@${env.HASHSHORT}
                         runkubejobs \
                             --debug --task runxhpl \
                             --prefix /var/lib/jenkins/workspace/logs \
