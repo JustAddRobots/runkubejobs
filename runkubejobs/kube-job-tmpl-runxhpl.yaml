@@ -36,9 +36,11 @@ spec:
                 -   name: LOGID
                     value: "--logid $LOGID"
                 -   name: MEM
-                    value: "--mem 10"
+                    value: "--mem 20"
                 -   name: RUNS
                     value: "--runs 2"
+                -   name: UPLOAD
+                    value: "--upload"
                 imagePullPolicy: Always
                 securityContext:
                     privileged: true

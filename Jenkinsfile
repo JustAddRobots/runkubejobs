@@ -58,6 +58,12 @@ pipeline {
                 echo "HASHSHORT: ${env.HASHSHORT}"
                 echo "TAG: ${env.TAG}"
                 echo "TAG_HASH: ${env.TAG_HASH}"
+                slackSend(
+                    message: """\
+                        STARTED ${env.JOB_NAME} #${env.BUILD_NUMBER},
+                        v${env.TAG_HASH} (<${env.BUILD_URL}|Open>)
+                    """.stripIndent()
+                )
             }
         }
         stage ('Deploy to Kubernetes Cluster') {
