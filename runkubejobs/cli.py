@@ -128,14 +128,12 @@ def get_command(args):
     return args
 
 
-def clean_up(workers, batch, core, my_cli):
+def clean_up(workers, my_cli):
     """
     Clean up failed Kubernetes jobs on worker nodes.
 
     Args:
         workers (dict): Dict of KubeJob instances, keyed by node name.
-        batch (BatchV1Api): Kubernetes API.
-        core (CoreV1Api): Kubernetes API.
         logger (Logger): Logger default.
         logger_noformat(Logger): Logger with no timestamp prefixes.
 
@@ -153,7 +151,7 @@ def clean_up(workers, batch, core, my_cli):
 
     for node, kjobs in workers.items():
         j = kjobs.job
-        p = kubejobs.get_pod(j, core)
+        p = kubejobs.get_pod(j)
         if j.status:
             if j.status.failed or p.status.phase == "Failed":
                 logger_noformat.debug("\n{0}".format(
@@ -163,10 +161,10 @@ def clean_up(workers, batch, core, my_cli):
                         + " "
                     ).center(80, "*")
                 ))
-                s = kubejobs.get_pod_log(p.metadata.name, core)
+                s = kubejobs.get_pod_log(p.metadata.name)
                 logger_noformat.debug(s)
             else:
-                kubejobs.delete_obj(j, batch)
+                kubejobs.delete_obj(j)
     my_cli.print_logdir()
     return None
 
@@ -199,8 +197,6 @@ def run(d):
     # Setup Kubernetes config and API
     my_ini = ini.INIConfig(CONSTANTS().INI_URL)
     config.load_kube_config(my_ini.kubeconfig)
-    core = client.CoreV1Api()
-    batch = client.BatchV1Api()
     w = watch.Watch()
     q_watch = queue.Queue()  # Queue for event stream
     q_exc = queue.Queue()  # Queue for thread exceptions
@@ -217,21 +213,21 @@ def run(d):
         ).name
 
     try:
-        nodes = kubejobs.get_task_nodes(core, requested_nodes)
+        nodes = kubejobs.get_task_nodes(requested_nodes)
     except RuntimeError as err:
         logger.exception(err)
         logger.info("Exiting.")
         sys.exit(1)
 
     logger.info("Creating Watch() thread")
-    stream = kubejobs.get_stream(w, core)
+    stream = kubejobs.get_stream(w)
     t_watch = kubejobs.get_thread(q_watch, stream)
     t_watch.start()
 
     # Start main thread
     m = threading.Thread(
         target = kubejobs.parse_queue,
-        args = (q_watch, q_exc, batch, core,),
+        args = (q_watch, q_exc,),
         name = "thread.main",
         daemon = True,
     )
@@ -240,10 +236,10 @@ def run(d):
     logger.info("Creating workers")
     workers = {}
     for node in nodes:
-        workers[node] = kubejobs.kubeJob(tmpl, task, node, log_id, image, core, batch, q_watch, w)
+        workers[node] = kubejobs.kubeJob(tmpl, task, node, log_id, image)
 
     # Register cleanup, handle exception queue from child threads
-    atexit.register(clean_up, workers, batch, core, my_cli)
+    atexit.register(clean_up, workers, my_cli)
     try:
         m.join()
     except KeyboardInterrupt:
