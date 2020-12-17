@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.7.0 (2020-12-17)
+------------------
+- ISSUE-018: Removed unnecessary core/batch parameters. (fd85366) [JustAddRobots]
+
 0.6.3 (2020-12-16)
 ------------------
 - ISSUE-030: Disabled delete tag stage. (fc01c33) [JustAddRobots]
