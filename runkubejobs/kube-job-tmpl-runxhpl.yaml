@@ -39,6 +39,8 @@ spec:
                     value: "--mem 10"
                 -   name: RUNS
                     value: "--runs 2"
+                -   name: UPLOAD
+                    value: "--upload"
                 imagePullPolicy: Always
                 securityContext:
                     privileged: true
