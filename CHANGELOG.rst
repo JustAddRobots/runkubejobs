@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.7.3 (2020-12-17)
+------------------
+- ISSUE-039: Updated for pipeline for git+https. (b764473) [JustAddRobots]
+- ISSUE-022: Added README updates. (f9997a7) [JustAddRobots]
+
 0.7.2 (2020-12-17)
 ------------------
 - Stage: Switched back to 10% MEM. (ff7888a) [JustAddRobots]
