@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.7.4 (2020-12-20)
+------------------
+- ISSUE-042: Added installation notes. (4427617) [JustAddRobots]
+
 0.7.3 (2020-12-17)
 ------------------
 - ISSUE-039: Updated for pipeline for git+https. (b764473) [JustAddRobots]

@@ -3,28 +3,34 @@ Custom Kubernetes Job Controller
 
 ## About
 
-Kubernetes is great. Its one of my favourite workflow tools. Unfortunately the
+Kubernetes is one of my favourite workflow tools. Unfortunately, IMO the
 native workload controllers are not best suited for HPC QA on baremetal computes. 
 
-I needed a job controller that can run an app (e.g. runxhpl) simultaneously on all 
-nodes to completion and not respawn regardless of whether the pod succeeded or failed. 
-The Job and DaemonSet controllers were close, but neither could do exactly what I needed.
+I needed a job controller that can run an app (e.g. 
+[runxhpl](https://github.com/JustAddRobots/runxhpl)) simultaneously on all nodes to 
+completion and not respawn regardless of whether the pod succeeded or failed. The Job 
+and DaemonSet controllers were close, but neither could do exactly what I needed.
 
 This project seeks to fill that gap. Though, there are already several great HPC job
 controllers, Kubernetes is just so accessible. Not to mention the 
 [API](https://kubernetes.io/docs/concepts/overview/kubernetes-api/) is just lovely 
 and the [Python client](https://github.com/kubernetes-client/python) is easy to use.
 
-This project is part of a CI/CD proof-of-concept and is **not supported**.
+This project is part of [deployxhpl](https://github.com/JustAddRobots/deployxhpl), 
+a CI/CD proof-of-concept, and is **not supported**.
 
 ## Features
 
 * Run task on node list or all workers
 * Custom task via YAML
 * CLI YAML template override
-* Full API debug output 
+* Full API debug output
 
 ## Installing
+
+```
+python3 -m pip install git+https://github.com/JustAddRobots/runkubejobs.git
+```
 
 ## Usage
 
